@@ -12,7 +12,7 @@
 ## რეპოზიტორიის სტრუქტურა
 
 ```
-├── eda-fraud.ipynb                          # მონაცემების ექსპლორაცია
+├── eda-fraud.ipynb                          # მონაცემების დამუშავება და შეფასება
 ├── model_experiment_XGBoost.ipynb           # XGBoost ექსპერიმენტები (pipeline ვერსია)
 ├── model_experiment_LogisticRegression.ipynb
 ├── model_experiment_RandomForest.ipynb
@@ -263,9 +263,8 @@ Feature Engineering-ით:      val AUC = 0.927  (181 ფიჩერი)
 **რატომ ეს მოდელი:**
 
 1. **val AUC 0.9271** — ყველა experiment-ს შორის საუკეთესო
-2. **Undersampling** ამცირებს overfitting-ს (gap: 0.064 → 0.051 baseline-თან შედარებით) redundant majority class მაგალითების ამოღებით
-3. **Early stopping** ავტომატურად პოულობს ოპტიმალურ tree-ების რაოდენობას — 12,000-ის ნაცვლად 3,857
-4. **Gap 0.066** — acceptable fraud detection-ისთვის, სადაც train/test დროით გამოყოფილია და fraud პატერნები ბუნებრივად იცვლება
+2. **Early stopping** ავტომატურად პოულობს ოპტიმალურ tree-ების რაოდენობას — 12,000-ის ნაცვლად 3,857
+3. **Gap 0.066** — მისაღებია fraud detection-ისთვის, სადაც train/test დროით გამოყოფილია და fraud პატერნები ბუნებრივად იცვლება
 
 ---
 
