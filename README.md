@@ -41,3 +41,22 @@ XGBoost_Training experiment
     ├── XGBoost_EarlyStopping_3000   val: 0.922
     ├── XGBoost_EarlyStopping_5000   val: 0.924  (best)
     └── XGBoost_BestModel_Pipeline   ← save this
+
+
+XGBoost_Training experiment
+    ├── XGBoost_Cleaning
+    ├── XGBoost_Categorical_Encoding
+    ├── XGBoost_Feature_Engineering
+    ├── XGBoost_Feature_Selection
+    ├── XGBoost_Underfitted              val: 0.867  ← underfitting shown
+    ├── XGBoost_Overfitted               val: 0.905  ← overfitting shown
+    ├── XGBoost_NoFE                     val: 0.913  ← FE value proven
+    ├── XGBoost_Baseline                 val: 0.919  ← starting point
+    ├── XGBoost_Tuned                    val: 0.919  ← tuning hit ceiling
+    ├── XGBoost_EarlyStopping            val: 0.922  ← more trees helped
+    ├── XGBoost_Undersampling            val: 0.921  ← gap reduced
+    ├── XGBoost_Undersample_EarlyStopping val: 0.925 ← best
+    └── XGBoost_BestModel_Pipeline       ← saved ✅
+
+"A gap of 0.059 remains after all regularization attempts. Given the temporal train/val split where fraud patterns shift over time, some gap is expected and not purely attributable to overfitting. The overfitted baseline showed a gap of 0.095, which was reduced to 0.059 through undersampling and early stopping."
+
