@@ -36,7 +36,7 @@
 
 **მნიშვნელოვანი EDA დასკვნები:**
 
-> 📸 *[ჩასვი EDA Cell 4-ის სამი გრაფიკი: Fraud rate over time / log(TransactionAmt) / Train vs Test time split]*
+<img width="1576" height="390" alt="image" src="https://github.com/user-attachments/assets/bce9838d-b0e1-4640-89c0-1c4140557737" />
 
 - **თაღლითობის სიხშირე დროში იცვლება** — 1%-დან 7%-მდე, რაც ნიშნავს რომ მოდელმა დროის მიმართ უნდა განზოგადდეს
 - **TransactionAmt ძლიერ გადახრილია** — log-ტრანსფორმაცია სავალდებულოა
