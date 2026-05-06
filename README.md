@@ -12,7 +12,7 @@
 ## რეპოზიტორიის სტრუქტურა
 
 ```
-├── eda-fraud.ipynb                          # მონაცემების დამუშავება და შეფასება
+├── eda-fraud_detection.ipynb                          # მონაცემების დამუშავება და შეფასება
 ├── model_experiment_XGBoost.ipynb           # XGBoost ექსპერიმენტები (pipeline ვერსია)
 ├── model_experiment_LogisticRegression.ipynb
 ├── model_experiment_RandomForest.ipynb
