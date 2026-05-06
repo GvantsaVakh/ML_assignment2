@@ -241,6 +241,66 @@ Feature Engineering-ით:      val AUC = 0.927  (181 ფიჩერი)
 - `card1_TransactionAmt_std` — ბარათის დანახარჯის ვარიაციულობა
 
 ---
+---------------------------------------------------------------------------------
+---
+
+## Random Forest
+
+### Preprocessing განსხვავებები XGBoost-თან შედარებით
+
+Random Forest-ისთვის preprocessing-ში რამდენიმე მნიშვნელოვანი განსხვავებაა:
+
+| ნაბიჯი | XGBoost | Random Forest | მიზეზი |
+|---|---|---|---|
+| NaN შევსება | -999 | -999 | RF-იც tree-based მოდელია — -999 მუშაობს |
+| Scaling | ❌ | ❌ | ორივე tree-based — scale-invariant |
+| class_weight | scale_pos_weight=28 | `balanced` | RF-ს არ აქვს scale_pos_weight პარამეტრი |
+| Undersampling | ✅ საუკეთესო შედეგი | ❌ class_weight='balanced' უკეთესია | RF-ში undersampling კარგავს ძალიან ბევრ მონაცემს |
+
+Feature Engineering და Feature Selection **იდენტურია** XGBoost-ის notebook-თან — uid3, same_email, email suffix, aggregation ფიჩერები ყველა მოდელისთვის სასარგებლოა.
+
+**რატომ `class_weight='balanced'` undersampling-ის ნაცვლად RF-ში:**
+RF ავაწყობს ბევრ ხეს **დამოუკიდებლად** — ყოველ ხეს სჭირდება საკმარისი მონაცემი სწავლისთვის. Undersampling 590k → 180k ამცირებს, RF ყოველ ხეს bootstrap sample-ს იყენებს ამ უკვე შემცირებული ნაკრებიდან — ძალიან ცოტა მაგალითი რჩება. `class_weight='balanced'` კი სრულ მონაცემებს ინახავს და fraud class-ს უბრალოდ მეტ წონას ანიჭებს.
+
+---
+
+### Training ექსპერიმენტები
+
+| Run სახელი | val AUC | train AUC | Gap | შენიშვნა |
+|---|---|---|---|---|
+| `RF_Underfitted` | 0.851 | 0.874 | 0.023 | max_depth=3, 10 ხე |
+| `RF_Overfitted` | 0.908 | 1.000 | 0.092 | max_depth=None, min_samples_leaf=1 |
+| `RF_Baseline_Undersampled` | 0.897 | 0.964 | 0.067 | 200 ხე, sqrt features |
+| `RF_MoreTrees_US` | 0.897 | 0.964 | 0.068 | 500 ხე — diminishing returns |
+| `RF_Tuned_US` | 0.899 | 0.972 | 0.073 | max_depth=20, min_leaf=20 |
+| `RF_MaxFeatures_30pct_US` | 0.898 | 0.972 | 0.074 | max_features=0.3 |
+| `RF_MaxFeatures_30pct_Full` ⭐ | **0.912** | 0.996 | 0.083 | full data + class_weight=balanced |
+
+---
+
+### ანალიზი
+
+**Underfitted vs Overfitted:**
+`RF_Underfitted` (val: 0.851) — max_depth=3 და 10 ხე ნიშნავს რომ მოდელი მხოლოდ ყველაზე ზედაპირულ პატერნებს ისწავლის. train AUC-იც (0.874) დაბალია — კლასიკური underfitting. `RF_Overfitted` (val: 0.908, train: 1.000, gap: 0.092) — შეუზღუდავი სიღრმის ხეები ყველა სატრენინგო მაგალითს ამახსოვრებს, val-ზე კი ვერ განზოგადდება.
+
+**Undersampling vs Full Data:**
+Undersampled run-ები (0.897-0.899) სტაბილურად უარესია ვიდრე full data (0.912). ეს ადასტურებს რომ RF-ისთვის `class_weight='balanced'` სჯობია — მონაცემების დაკარგვა RF-ს უფრო მეტად აზარალებს ვიდრე XGBoost-ს, რადგან RF-ი მონაცემების სიმრავლეზეა დამოკიდებული.
+
+**More Trees — Diminishing Returns:**
+`RF_Baseline` (200 ხე, val: 0.897) vs `RF_MoreTrees` (500 ხე, val: 0.897) — ზუსტად იგივე შედეგი. RF-ი კონვერგირდება გარკვეული რაოდენობის ხეების შემდეგ — მეტი ხე მხოლოდ დროს კარგავს.
+
+**საუკეთესო კომბინაცია:**
+`RF_MaxFeatures_30pct_Full` — სრული სატრენინგო მონაცემები + `max_features=0.3` + `class_weight='balanced'`. max_features=0.3 ნიშნავს რომ ყოველ split-ზე 181-დან ~54 ფიჩერი განიხილება — ეს ქმნის უფრო diverse ხეებს sqrt-ის (~13 ფიჩერი) ან 0.3-ის შედარებით.
+
+---
+
+### XGBoost-თან შედარება
+XGBoost_Undersample_EarlyStopping:  val AUC = 0.9271  ← საუკეთესო
+Random Forest (best):               val AUC = 0.9124  ← 0.0147 ჩამორჩება
+
+RF ყველაზე ახლოს მივიდა XGBoost-თან ყველა სხვა მოდელს შორის, მაგრამ ვერ გადააჭარბა. ეს მოსალოდნელია — RF აწყობს ხეებს **დამოუკიდებლად** (bagging), XGBoost კი **თანმიმდევრულად** (boosting) — ყოველი ახალი ხე წინა ხის შეცდომებს ასწორებს. fraud detection-ის მსგავს კომპლექსურ, დაუბალანსებელ პრობლემაზე sequential learning-ი მკაფიოდ უჯობს parallel learning-ს.
+---------------------------------------------------------------------------------
+
 
 ## საბოლოო მოდელის შერჩევა
 
