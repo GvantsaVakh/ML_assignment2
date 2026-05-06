@@ -394,6 +394,7 @@ Feature Engineering-ით:      val AUC = 0.927  (181 ფიჩერი)
 
 **DagsHub MLflow:** [https://dagshub.com/gvakh23/ML_assignment2.mlflow](https://dagshub.com/gvakh23/ML_assignment2.mlflow)
 **Kaggle Score: 0.90**
+<img width="463" height="236" alt="image" src="https://github.com/user-attachments/assets/f0110424-0e20-4843-8c33-e5f13a008073" />
 
 
 ### ექსპერიმენტების სტრუქტურა
